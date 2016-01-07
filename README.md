@@ -1,1 +1,1 @@
-http://xem.github.io/lmqtfy?q=whatever
+http://xem.github.io/lmqtfy/?q=whatever
