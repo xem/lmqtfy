@@ -1,0 +1,98 @@
+<!DOCTYPE HTML>
+<meta charset="utf-8">
+<style>
+  * {
+    border:0;padding: 0;margin: 0;outline: 0;
+    cursor: none;
+  }
+  .qwant-iframe, #overlay {
+    width: 100%;
+    height: 100vh;
+  }
+  #overlay {
+    position: absolute;top:0;left: 0;
+  }
+
+  #fake-cursor {
+    position: absolute;
+    transition: all 1s;
+    top: 0;left: 0;
+  }
+
+  #fake-input {
+    position: absolute;
+    left: calc(50% - (550px*0.85/2));
+    top: 290px;
+    width: calc(550px*0.90);
+    height: 55px;
+    line-height: 55px;
+    font-size: 30px;
+    color: rgba(77,84,92,.95);
+    font-family: "Segoe UI",Helvetica,"Droid Sans",Arial,sans-serif;
+  }
+
+  body {
+    overflow: hidden;
+  }
+</style>
+<div id="overlay">
+  <input type="text" id="fake-input" value="">
+  <img src="./images/cursor.gif" id="fake-cursor">
+</div>
+<iframe id="fake-qwant" src="http://www.qwant.com" class="qwant-iframe"></iframe>
+
+<script>
+  var inputField = document.getElementById('fake-input');
+  var fakeQwant = document.getElementById('fake-qwant');
+  var cursor = document.getElementById('fake-cursor');
+
+
+  window.onload = function() {
+    inputField.value = "";
+  };
+
+
+  setTimeout(function() {
+    goClick(310, window.innerWidth/2 - 200);
+    setTimeout(function() {
+      cursor.src = "./images/text.png"
+    }, 700);
+    setTimeout(function() {
+      inputField.focus();
+    }, 900)
+  }, 2000);
+
+
+
+  var typeHook;
+  setTimeout(function() {
+    typeHook = setInterval(type,300);
+  }, 3550);
+
+
+  var url = window.location;
+  var q = url.href.split("?q=")[1];
+  var currentLetterIndex = 0;
+
+
+  function type() {
+    inputField.value += q[currentLetterIndex++];
+    if(currentLetterIndex == q.length) {
+      clearInterval(typeHook);
+      goClick(320, window.innerWidth/2 + 280);
+      setTimeout(function() {
+        cursor.src = "images/link.png";
+      }, 550);
+      setTimeout(function() {
+        window.location = 'https://www.qwant.com/?q=' + q + '&t=web'
+      }, 1600)
+    }
+  }
+
+  function goClick(top, left) {
+    cursor.style.top = top + 'px';
+    cursor.style.left = left + 'px';
+  }
+
+
+</script>
