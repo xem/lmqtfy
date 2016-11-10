@@ -1,15 +1,25 @@
 <!DOCTYPE HTML>
 <meta charset="utf-8">
+<title>Let me Qwant that for you</title>
 <style>
   * {
-    border:0;padding: 0;margin: 0;outline: 0; box-sizing: border-box;
+    border:0;
+    padding: 0;
+    margin: 0;
+    outline: 0;
+    box-sizing: border-box;
+    font-family:arial, "sans-serif";
   }
+  
   .qwant-iframe, #overlay {
     width: 100%;
     height: 100vh;
   }
+  
   #overlay {
-    position: absolute;top:0;left: 0;
+    position: absolute;
+    top:0;
+    left: 0;
   }
 
   #fake-cursor {
@@ -22,25 +32,16 @@
 
   #fake-input {
     position: absolute;
-    left: calc(50% - 10px);
+    left: calc(50% + 5px);
     transform: translateX(-50%);
     top: 290px;
-    width: 60%;
+    width: 50%;
     max-width: 480px;
     height: 55px;
     line-height: 55px;
     font-size: 30px;
     color: rgba(77,84,92,.95);
-    font-family: "Segoe UI",Helvetica,"Droid Sans",Arial,sans-serif;
-  }
-
-  @media (max-width: 640px){
-    #fake-input {
-      top: 68px;
-      left: calc(50% - 25px);
-      width: 365px;
-      height: 49px;
-    }
+    font-family: "Segoe UI", Helvetica, "Droid Sans", Arial, sans-serif;
   }
 
   body {
@@ -48,32 +49,38 @@
   }
 
   h1 {
-    font-family:arial, "sans-serif";
-    color: #fff;
-    margin: 10px 0;
+    color: #404040;
+    margin: 10px 0 5px;
     text-align: center;
     font-size: 22px;
     font-weight: normal;
   }
+  
   /* form */
 
   #generate {
     display: none;
     position: absolute;
-    top: calc(50vh - 125px);
-    left: calc(50% - 310px) ;
-    background: #444;
-    padding: 50px;
+    top: 280px;
+    left: calc(50% + 35px);
+    transform: translateX(-50%);
+    background: #fff;
+    padding: 30px;
   }
+  
   #keywords {
-    height: 30px;
-    width: 460px;
+    height: 44px;
+    width: 70vw;
+    max-width: 500px;
     line-height: 30px;
     font-size: 20px;
     color: #666;
-    margin: 10px 10px;
-    padding: 0 5px;
+    margin: 20px 10px 10px;
+    padding: 7px 10px;
+    background: #F4F6F7;
+    border-bottom: 2px solid #88898A;
   }
+  
   #button {
     height: 30px;
     width: 30px;
@@ -82,121 +89,181 @@
   }
 
   #url-generate {
-    height: 30px;
-    width: 505px;
+    height: 44px;
+    width: 70vw;
+    max-width: 500px;
     line-height: 30px;
     font-size: 16px;
-    color: #FFF;
-    font-style: italic;
-    background: #777;
-    margin: 10px 10px;
-    padding: 0 5px;
+    color: #404040;
+    background: #fff;
+    margin: 20px 10px 0;
+    padding: 7px 10px;
+    border: 1px solid #eee;
   }
 
   #url-generate::-moz-selection {
-    color: #000;  background: limegreen;
+    color: #000;
+    background: limegreen;
   }
+  
   #url-generate::selection {
-    color: #000;background: limegreen;
+    color: #000;
+    background: limegreen;
     padding: 3px 5px;
   }
-
+  
+  #copy-link {
+    text-decoration: none;
+    float: right;
+    margin: 10px;
+    color: #313131;
+  }
+  
+  #copy-link span {
+    color: #ccc;
+  }
+  
+  @media (max-width: 999px){
+    #fake-input {
+      top: 305px;
+      left: calc(50% + -5px);
+      width: 50vw;
+      min-width: 300px;
+      max-width: 550px;
+    }
+  }
+  
+  @media (max-width: 640px){
+    #fake-input {
+      top: 205px;
+      left: calc(50% - 10px);
+      width: 60vw;
+      min-width: 300px;
+      max-width: 450px;
+      height: 49px;
+      background: linear-gradient(-90deg, transparent 50px, #fff 50px);
+      padding: 0 50px 0 0;
+    }
+    
+    #generate {
+      top: 200px;
+      left: calc(50%);
+    }
+  }
+  
 </style>
 <div id="overlay">
 
-  <input type="text" id="fake-input" value="">
+  <input type="text" id="fake-input" value="" readonly>
   <div id="generate">
-    <h1>Let me Qwant that for you:</h1>
-    <input autofocus type="text" id="keywords" value="ex: The Beatles">
-    <button id="button">Ok.</button>
+    <h1 id="maintitle">Let me Qwant that for you</h1>
+    <input autofocus type="text" id="keywords" placeholder="What are you looking for?">
     <br>
-    <input readonly type="text" id="url-generate">
+    <input readonly type="text" id="url-generate" placeholder="...">
+    <br>
+    <a href="javascript:;" id="copy-link"><span>»</span> Copy link</a>
   </div>
 
   <img src="./images/cursor.gif" id="fake-cursor">
 </div>
-<iframe id="fake-qwant" src="http://www.qwant.com" class="qwant-iframe"></iframe>
+<iframe id="fake-qwant" src="http://www.qwant.com?h=0&hc=0" class="qwant-iframe"></iframe>
 
 <script>
-  var inputField = document.getElementById('fake-input');
-  var fakeQwant = document.getElementById('fake-qwant');
-  var cursor = document.getElementById('fake-cursor');
-  var url = window.location;
-  var q = decodeURI(url.href.split("q=")[1]);
-  if(q !== 'undefined') {
-    document.body.style.cursor = "none";
-    cursor.style.display = 'inline';
+var maintitle = document.getElementById('maintitle');
+var inputField = document.getElementById('fake-input');
+var fakeQwant = document.getElementById('fake-qwant');
+var cursor = document.getElementById('fake-cursor');
+var link = document.getElementById('copy-link');
+var keywords = document.getElementById('keywords');
+var urlGenerate = document.getElementById('url-generate');
+var generate = document.getElementById('generate');
+var overlay = document.getElementById('overlay');
+var language = window.navigator.userLanguage || window.navigator.language;
 
-    window.onload = function () {
-      inputField.value = "";
-    };
+// FR
+if(language.toLowerCase().indexOf("fr") != -1){
+  keywords.placeholder = "Que recherchez-vous ?";
+  maintitle.outerHTML += "<center>(laisse-moi chercher ça sur Qwant pour toi)</center>";
+  link.innerHTML = "<span>»</span> Copier le lien";
+}
 
+keywords.value = urlGenerate.value = inputField.value = "";
 
-    setTimeout(function () {
-      if(window.innerWidth > 650){
-        goClick(310, window.innerWidth / 2 - 200);
-      }
-      else{
-        goClick(90, window.innerWidth / 2 - 150);
-      }
-      setTimeout(function () {
-        cursor.src = "./images/text.png"
-      }, 700);
-      setTimeout(function () {
-        inputField.focus();
-      }, 900)
-    }, 2000);
+var url = window.location;
+var q = decodeURIComponent(url.href.split("q=")[1]);
 
+// A query is present in the URL: play the animation
+if(q !== 'undefined') {
+  document.body.style.cursor = "none";
+  inputField.style.cursor = "none";
+  cursor.style.display = 'inline';
 
-    var typeHook;
-    setTimeout(function () {
-      typeHook = setInterval(type, 300);
-    }, 3550);
-
-
-
-  } else {
-    var generate = document.getElementById('generate');
-    generate.style.display = 'block';
-    var overlay = document.getElementById('overlay');
-    overlay.style.background = "rgba(255,255,255,0.5)";
-    var keywords = document.getElementById('keywords');
-    var urlGenerate = document.getElementById('url-generate');
-
-    var actionButton = document.getElementById('button');
-    actionButton.onclick = function() {
-      urlGenerate.value = encodeURI('http://xem.github.io/lmqtfy/?q=' + keywords.value);
-      urlGenerate.focus();
-      urlGenerate.select()
+  setTimeout(function () {
+    if(window.innerWidth > 650){
+      goClick(310, window.innerWidth / 2 - 200);
     }
-
-  }
-
-
-  var currentLetterIndex = 0;
-  function type() {
-    inputField.value += q[currentLetterIndex++];
-    if(currentLetterIndex == q.length) {
-      clearInterval(typeHook);
-      if(window.innerWidth > 650){
-        goClick(320, window.innerWidth/2 + 280);
-      }
-      else{
-        goClick(90, window.innerWidth/2 + 180);
-      }
-      setTimeout(function() {
-        cursor.src = "images/link.png";
-      }, 550);
-      setTimeout(function() {
-        window.location = 'https://www.qwant.com/?q=' + q + '&t=web'
-      }, 1600)
+    else{
+      goClick(210, window.innerWidth / 2 - 150);
     }
-  }
+    setTimeout(function () {
+      cursor.src = "./images/text.png";
+    }, 700);
+    setTimeout(function () {
+      inputField.focus();
+    }, 900)
+  }, 2000);
 
-  function goClick(top, left) {
-    cursor.style.top = top + 'px';
-    cursor.style.left = left + 'px';
-  }
+  var typeHook;
+  setTimeout(function () {
+    typeHook = setInterval(type, 300);
+  }, 3550);
+}
 
+// Else, display the homepage
+else {
+  inputField.style.display = 'none';
+  generate.style.display = 'block';
+  overlay.style.background = "rgba(0,0,0,0.25)";
+}
+
+var currentLetterIndex = 0;
+
+function type() {
+  inputField.value += q[currentLetterIndex++];
+  if(currentLetterIndex == q.length) {
+    clearInterval(typeHook);
+    if(window.innerWidth > 650){
+      goClick(320, window.innerWidth/2 + 280);
+    }
+    else{
+      goClick(220, Math.min(window.innerWidth/2 + 140, window.innerWidth - 50));
+    }
+    setTimeout(function() {
+      cursor.src = "images/link.png";
+    }, 550);
+    setTimeout(function() {
+      console.log('https://www.qwant.com/?q=' + encodeURIComponent(q) + '&t=web');
+      window.location = 'https://www.qwant.com/?q=' + encodeURIComponent(q) + '&t=web'
+    }, 1600)
+  }
+}
+
+function goClick(top, left) {
+  cursor.style.top = top + 'px';
+  cursor.style.left = left + 'px';
+}
+
+keywords.oninput = function(){
+  urlGenerate.value = 'http://lmqt.fyi/?q=' + encodeURIComponent(keywords.value);
+}
+
+link.onclick = function(){
+  urlGenerate.focus();
+  urlGenerate.select();
+  document.execCommand('copy');
+  setInterval(function(){
+    urlGenerate.blur();
+  }, 500);
+}
 
 </script>
